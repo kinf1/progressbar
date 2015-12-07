@@ -1,0 +1,21 @@
+{
+  "name": "progressbar",
+  "version": "1.0.0",
+  "description": "react.js progress bar",
+  "main": "progressbar.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "karthika kannan",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^12.0.1",
+    "gulp": "^3.9.0",
+    "vinyl-source-stream": "^1.1.0",
+    "reactify":"^1.1.1"
+  },
+  "dependencies": {
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3"
+  }
+}
