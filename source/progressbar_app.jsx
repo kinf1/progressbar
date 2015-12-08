@@ -7,7 +7,7 @@ var ProgressBar = React.createClass({
 	barWidthText : 0,
 	
 	render: function(){
-		console.log("Inside the ProgressBar render function");
+		//console.log("Inside the ProgressBar render function");
 		var activeProgessBarId = this.props.activeProgressBar;
 		var myId = this.props.id;
 		var incrementValue = this.props.progressValue;
@@ -69,26 +69,82 @@ var ProgressBar = React.createClass({
 });
 
 var Button = React.createClass({
-	
 	localAddToProgressFn: function(e){
-		 if (typeof this.props.addToProgressFn === 'function') {
-		     this.props.addToProgressFn(this.props.buttonValue);
-        	}
+  		 if (typeof this.props.addToProgressFn === 'function') {
+  		     this.props.addToProgressFn(this.props.buttonValue);
+          	}
+	},
+	componentDidMount: function(e){
+    $.event.special.tap = {
+      // Abort tap if touch moves further than 10 pixels in any direction
+      distanceThreshold: 10,
+      // Abort tap if touch lasts longer than half a second
+      timeThreshold: 500,
+      setup: function() {
+        var self = this,
+          $self = $(self);
+    
+        // Bind touch start
+        $self.on('touchstart', function(startEvent) {
+          // Save the target element of the start event
+          var target = startEvent.target,
+            touchStart = startEvent.originalEvent.touches[0],
+            startX = touchStart.pageX,
+            startY = touchStart.pageY,
+            threshold = $.event.special.tap.distanceThreshold,
+            timeout;
+    
+          function removeTapHandler() {
+            clearTimeout(timeout);
+            $self.off('touchmove', moveHandler).off('touchend', tapHandler);
+          };
+    
+          function tapHandler(endEvent) {
+            removeTapHandler();
+    
+            // When the touch end event fires, check if the target of the
+            // touch end is the same as the target of the start, and if
+            // so, fire a click.
+            if (target == endEvent.target) {
+              $.event.simulate('tap', self, endEvent);
+            }
+          };
+    
+          // Remove tap and move handlers if the touch moves too far
+          function moveHandler(moveEvent) {
+            var touchMove = moveEvent.originalEvent.touches[0],
+              moveX = touchMove.pageX,
+              moveY = touchMove.pageY;
+    
+            if (Math.abs(moveX - startX) > threshold ||
+                Math.abs(moveY - startY) > threshold) {
+              removeTapHandler();
+            }
+          };
+    
+          // Remove the tap and move handlers if the timeout expires
+          timeout = setTimeout(removeTapHandler, $.event.special.tap.timeThreshold);
+    
+          // When a touch starts, bind a touch end and touch move handler
+          $self.on('touchmove', moveHandler).on('touchend', tapHandler);
+        });
+      }
+    };
 	},
 	render: function(){
-		console.log("Inside the Button render function");
+		//console.log("Inside the Button render function");
 		var buttonStyle = {
 		   margin : '20px'
 		};
 		var name = this.props.buttonName;
-		return ( <button onClick={this.localAddToProgressFn} style={buttonStyle}> {name} </button> )
+		return ( <button onClick={this.localAddToProgressFn} onTap={this.localAddToProgressFnTouch} style={buttonStyle}> {name} </button> )
 	}
 });
 
 var DropDownList = React.createClass({
 	
 	render: function(){
-		console.log("Inside the DDL render function");
+		//console.log("Inside the DDL render function");
 		var ddlStyle = {
 		  marginRight : '20px'
 		};
@@ -124,7 +180,7 @@ var Container = React.createClass({
 	},
 	
 	render : function(){
-		console.log("Inside the Container render function");
+		//console.log("Inside the Container render function");
 		var containerStyle = {
 		  borderColor : '#ddd',
 		  borderStyle : 'solid',
@@ -142,6 +198,7 @@ var Container = React.createClass({
     			float: 'none'
 		};
 		return (
+		  <div className="container-fluid">
 			<div className="col-md-4 col-sm-8 col-xs-10" style={containerStyle}>
 			   <h2 style={headerStyle}> Progress Bars Demo </h2>
 			   <br/>
@@ -162,23 +219,23 @@ var Container = React.createClass({
 					</div>
 
 					<div className="col-md-2 col-sm-3 col-xs-6 text-center" style={vAlignStyle}>
-						<Button id="button1" addToProgressFn={this.addToProgress} buttonValue={-25} buttonName="-25" />
+						<Button id="button1" addToProgressFn={this.addToProgress} addToProgressFnTouch={this.addToProgressTouch} buttonValue={-25} buttonName="-25" />
 					</div>
 
 					<div className="col-md-2 col-sm-3 col-xs-6 text-center" style={vAlignStyle}>
-						<Button id="button2" addToProgressFn={this.addToProgress} buttonValue={-10} buttonName={"-10"} />
+						<Button id="button2" addToProgressFn={this.addToProgress} addToProgressFnTouch={this.addToProgressTouch} buttonValue={-10} buttonName={"-10"} />
 					</div>
 
 					<div className="col-md-2 col-sm-3 col-xs-6 text-center" style={vAlignStyle}>
-						<Button id="button3" addToProgressFn={this.addToProgress} buttonValue={+10} buttonName={"+10"} />
+						<Button id="button3" addToProgressFn={this.addToProgress} addToProgressFnTouch={this.addToProgressTouch} buttonValue={+10} buttonName={"+10"} />
 					</div>
 
 					<div className="col-md-2 col-sm-3 col-xs-6 text-center" style={vAlignStyle}>
-						<Button id="button4" addToProgressFn={this.addToProgress} buttonValue={+25} buttonName={"+25"} />
+						<Button id="button4" addToProgressFn={this.addToProgress} addToProgressFnTouch={this.addToProgressTouch} buttonValue={+25} buttonName={"+25"} />
 					</div>
 				</div>
 			   </div>
-			</div>
+			</div></div>
 		);
 	}
 
